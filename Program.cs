@@ -10,6 +10,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 builder.Services.AddSingleton<IAnimalDb, AnimalDb>();
+builder.Services.AddSingleton<IVisitDb, VisitDb>();
+
 
 var app = builder.Build();
 
@@ -57,6 +59,27 @@ app.MapDelete("/manimals/{id}", (IAnimalDb animalDb, int id) =>
 {
     animalDb.DeleteAnimal(id);
     return Results.NoContent();
+});
+
+
+app.MapGet("/visits", (IVisitDb visitDb) =>
+{
+    return Results.Ok(visitDb.GetVisits());
+});
+
+app.MapGet("/visits/{id}", (IVisitDb visitDb, int id) =>
+{
+    var visit = visitDb.GetVisitById(id);
+    if (visit == null)
+        return Results.NotFound();
+
+    return Results.Ok(visit);
+});
+
+app.MapPost("/visits", (IVisitDb visitDb, Visit visit) =>
+{
+    visitDb.AddVisit(visit);
+    return Results.Created();
 });
 
 app.MapControllers();
